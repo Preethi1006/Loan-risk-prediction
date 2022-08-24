@@ -21,6 +21,7 @@ input_file.drop(input_missing[input_missing['percent_missing']>10].index,axis=1,
 print(input_file.isnull().sum())
 input_file.drop(['id'],axis=1,inplace=True)
 print(input_file.info())
+print(input_file.loan_status.value_counts())
 
 # Checking for null values after null value fields
 sns.heatmap(input_file.isnull())
@@ -38,9 +39,10 @@ columns=['loan_amnt','term','int_rate','installment','grade','emp_length','home_
 
 input_file=input_file[columns]
 
-# Checking for null values after feature extraction
+#Checking for null values after feature extraction
 sns.heatmap(input_file.isnull())
 plt.title('Null values visual plot',fontdict={'fontsize': 10})
 plt.legend(input_file.isnull())
 plt.show()
 
+print(input_file['loan_status_numeric'].value_counts())
