@@ -29,8 +29,14 @@ plt.title('Null values visual plot',fontdict={'fontsize': 10})
 plt.legend(input_file.isnull())
 plt.show()
 
+#drop the rows with loan status as current
+input_file.drop(input_file.index[input_file['loan_status'] == 'Current'], inplace=True)
+
+input_file.loc[input_file['emp_length'].isnull(), 'emp_length'] = '10+ years'
+
+
 #transforming loan status from categorical to numeric
-input_file['loan_status_numeric']=input_file['loan_status'].map({'Charged Off':1,'Fully Paid':0})
+input_file['loan_status_numeric']=input_file['loan_status'].map({'Charged Off':1,'Fully Paid':0,'Late (31-120 days)':0,'Late (16-30 days)':0,'In Grace Period':1})
 
 #feature extraction
 columns=['loan_amnt','term','int_rate','installment','grade','emp_length','home_ownership','annual_inc',
@@ -38,6 +44,9 @@ columns=['loan_amnt','term','int_rate','installment','grade','emp_length','home_
         'inq_last_6mths','open_acc','pub_rec','revol_bal','revol_util','total_acc']
 
 input_file=input_file[columns]
+
+#employee length count
+print(input_file.emp_length.value_counts())
 
 #Checking for null values after feature extraction
 sns.heatmap(input_file.isnull())
