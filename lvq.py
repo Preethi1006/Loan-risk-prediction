@@ -3,6 +3,7 @@ from random import seed
 from random import randrange
 from csv import reader
 from math import sqrt
+import numpy as np
 import pandas as pd
 import decimal
 
@@ -32,8 +33,14 @@ def evaluate_algorithm(dataset, algorithm, n_folds, *args):
 	folds = cross_validation_split(dataset, n_folds)
 	scores = list()
 	for fold in folds:
-		train_set = list(folds)
-		train_set.remove(fold)
+		train_set=list()
+		for f in folds:
+			if np.array_equal(f,fold) == False:
+				tcopy=list(f)
+				train_set.append(tcopy)
+				tcopy[-1]=None
+		# train_set = list(folds)
+		# train_set.remove(fold)
 		train_set = sum(train_set, [])
 		test_set = list()
 		for row in fold:
@@ -48,9 +55,9 @@ def evaluate_algorithm(dataset, algorithm, n_folds, *args):
 
 # calculate the Euclidean distance between two vectors
 def euclidean_distance(row1, row2):
-	distance = decimal.Decimal(0)
+	distance = 0.0
 	for i in range(len(row1)-1):
-		distance += (decimal.Decimal(row1[i]) - decimal.Decimal(row2[i]))**decimal.Decimal(2)
+		distance += ((row1[i]) - (row2[i]))**(2)
 	return sqrt(distance)
 
 # Locate the best matching unit
@@ -100,7 +107,7 @@ def learning_vector_quantization(train, test, n_codebooks, lrate, epochs):
 
 seed(10)
 decimal.getcontext().prec=100
-input_file=pd.read_csv("Dataset/Dataset.csv",low_memory=False,nrows=20000)
+input_file=pd.read_csv("Dataset/Dataset.csv",low_memory=False,nrows=500)
 
 # print(input_file.info())
 
@@ -169,17 +176,17 @@ input_file['loan_status'] = input_file['loan_status'].replace(replace_status)
 input_file = input_file[ (input_file['loan_status']== 1) | (input_file['loan_status']== 0)]
 
 columns=['loan_amnt','term_years','int_rate','installment','risk_rate','emp_length_numeric','home_ownership','annual_inc',
-        'verification_status_numeric','loan_status','dti','delinq_2yrs','fico_range_low',
-        'inq_last_6mths','open_acc','pub_rec','revol_bal','revol_util','total_acc','tot_cur_bal']
+        'verification_status_numeric','dti','delinq_2yrs','fico_range_low',
+        'inq_last_6mths','open_acc','pub_rec','revol_bal','revol_util','total_acc','tot_cur_bal','loan_status']
 
 input_file=input_file[columns]
 print(input_file.info())
 inputfile=input_file.to_numpy()
 
 # evaluate algorithm
-n_folds = 50
+n_folds = 10
 learn_rate = 0.3
-n_epochs = 50
+n_epochs = 20
 n_codebooks = 20
 scores = evaluate_algorithm(inputfile, learning_vector_quantization, n_folds, n_codebooks, learn_rate, n_epochs)
 print('Scores: %s' % scores)

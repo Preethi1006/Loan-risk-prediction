@@ -3,6 +3,14 @@ import decimal
 from math import sqrt
 from random import randrange
 from random import seed
+from sklearn.model_selection import train_test_split
+
+def accuracy_metric(actual, predicted):
+	correct = 0
+	for i in range(len(actual)):
+		if actual[i] == predicted[i]:
+			correct += 1
+	return correct / float(len(actual)) * 100.0
 
 # calculate the Euclidean distance between two vectors
 def euclidean_distance(row1, row2):
@@ -19,6 +27,10 @@ def get_best_matching_unit(codebooks, test_row):
 		distances.append((codebook, dist))
 	distances.sort(key=lambda tup: tup[1])
 	return distances[0][0]
+
+def predict(codebooks, test_row):
+	bmu = get_best_matching_unit(codebooks, test_row)
+	return bmu[-1]
 
 # Create a random codebook vector
 def random_codebook(train):
@@ -138,5 +150,14 @@ inputfile=input_file.to_numpy()
 learn_rate = 0.3
 n_epochs = 20
 n_codebooks = 20
-codebooks = train_codebooks(inputfile, n_codebooks, learn_rate, n_epochs)
-print('Codebooks: %s' % codebooks)
+train, test = train_test_split(inputfile, test_size=0.33, random_state=1)
+codebooks = train_codebooks(train, n_codebooks, learn_rate, n_epochs)
+predictions=list()
+for row in test:
+	output = predict(codebooks, row)
+	predictions.append(output)
+print('Predictions: %s' % predictions)
+actual = [row[-1] for row in test]
+accuracy = accuracy_metric(actual, predictions)
+print('Accuracy : % s' % accuracy)
+# print('Codebooks: %s' % codebooks)

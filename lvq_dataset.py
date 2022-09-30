@@ -60,6 +60,7 @@ def evaluate_algorithm(dataset, algorithm, n_folds, *args):
 	folds = cross_validation_split(dataset, n_folds)
 	scores = list()
 	for fold in folds:
+		print(fold)
 		train_set = list(folds)
 		train_set.remove(fold)
 		train_set = sum(train_set, [])
@@ -124,7 +125,6 @@ def train_codebooks(train, n_codebooks, lrate, epochs):
 
 # LVQ Algorithm
 def learning_vector_quantization(train, test, n_codebooks, lrate, epochs):
-	print("Learning Vector Quantization")
 	codebooks = train_codebooks(train, n_codebooks, lrate, epochs)
 	predictions = list()
 	for row in test:
