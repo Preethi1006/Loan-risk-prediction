@@ -139,7 +139,7 @@ input_file['loan_status'] = input_file['loan_status'].replace(replace_status)
 input_file = input_file[ (input_file['loan_status']== 1) | (input_file['loan_status']== 0)]
 
 columns=['loan_amnt','term_years','int_rate','installment','risk_rate','emp_length_numeric','annual_inc','dti','delinq_2yrs','fico_range_low',
-        'inq_last_6mths','open_acc','pub_rec','revol_bal','revol_util','total_acc','tot_cur_bal','loan_status']
+        'inq_last_6mths','open_acc','pub_rec','revol_bal','revol_util','total_acc','tot_cur_bal','home_ownership','verification_status_numeric','loan_status']
 
 # columns=['loan_amnt','term_years','int_rate','installment','risk_rate','emp_length_numeric','home_ownership','annual_inc',
 #         'verification_status_numeric','loan_status','dti','delinq_2yrs','fico_range_low',
@@ -156,7 +156,7 @@ predictions=list()
 for row in test:
 	output = predict(codebooks, row)
 	predictions.append(output)
-print('Predictions: %s' % predictions)
+# print('Predictions: %s' % predictions)
 actual = [row[-1] for row in test]
 accuracy = accuracy_metric(actual, predictions)
 print('Accuracy : % s' % accuracy)
