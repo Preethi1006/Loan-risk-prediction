@@ -38,18 +38,28 @@ input_file['term_years'] = input_file['term'].apply(lambda x : x[0:3])
 input_file['term_years'] = input_file.term_years.astype('Int64')
 input_file['term_years'] = input_file['term_years']/12
 input_file['term_years'] = input_file.term_years.astype('Int64')
-input_file['loan_amnt'] = input_file['loan_amnt']/7000
-input_file['int_rate'] = input_file['int_rate']/5
-input_file['installment'] = input_file['installment']/250
-input_file['risk_rate'] = input_file['risk_rate']/5
-input_file['annual_inc'] = input_file['annual_inc']/800000
-input_file['fico_range_low'] = input_file['fico_range_low']/150
-input_file['dti'] = input_file['dti']/27
-input_file['open_acc'] = input_file['open_acc']/13
-input_file['pub_rec'] = input_file['pub_rec']/5
-input_file['revol_bal'] = input_file['revol_bal']/200000
-input_file['total_acc'] = input_file['total_acc']/20
-input_file['tot_cur_bal'] = input_file['tot_cur_bal']/800000
+col=['loan_amnt','int_rate','installment','risk_rate','annual_inc','fico_range_low','dti','open_acc','pub_rec','revol_bal','total_acc',
+     'tot_cur_bal','total_pymnt','max_bal_bc','total_rec_int','avg_cur_bal']
+for i in col:
+        temp=input_file[i]
+        max=temp.max()
+        min=temp.min()
+        input_file[i] = (input_file[i]-min)/(max-min)
+# input_file['int_rate'] = input_file['int_rate']/5
+# input_file['installment'] = input_file['installment']/250
+# input_file['risk_rate'] = input_file['risk_rate']/5
+# input_file['annual_inc'] = input_file['annual_inc']/800000
+# input_file['fico_range_low'] = input_file['fico_range_low']/150
+# input_file['dti'] = input_file['dti']/27
+# input_file['open_acc'] = input_file['open_acc']/13
+# input_file['pub_rec'] = input_file['pub_rec']/5
+# input_file['revol_bal'] = input_file['revol_bal']/200000
+# input_file['total_acc'] = input_file['total_acc']/20
+# input_file['tot_cur_bal'] = input_file['tot_cur_bal']/800000
+# input_file['total_pymnt'] = input_file['total_pymnt']/50000
+# input_file['max_bal_bc'] = input_file['max_bal_bc']/10000
+# input_file['total_rec_int'] = input_file['total_rec_int']/20000
+# input_file['avg_cur_bal'] = input_file['avg_cur_bal']/200000
 # print(input_file['term'],input_file['term_years'])
 
 input_file['emp_length_numeric']=input_file['emp_length'].map({'10+ years':1,'< 1 year':0.05,'2 years':0.2,'3 years':0.3,'1 year':0.1,'5 years':0.5,'6 years':0.6,'4 years':0.4,'8 years':0.8,'9 years':0.9,'7 years':0.7})
@@ -72,11 +82,11 @@ input_file['loan_status'] = input_file['loan_status'].replace(replace_status)
 input_file = input_file[ (input_file['loan_status']== 1) | (input_file['loan_status']== 0)]
 
 columns=['loan_amnt','term_years','int_rate','installment','risk_rate','emp_length_numeric','home_ownership','annual_inc',
-        'verification_status_numeric','loan_status','dti','delinq_2yrs','fico_range_low',
-        'inq_last_6mths','open_acc','pub_rec','revol_bal','revol_util','total_acc','tot_cur_bal']
+        'verification_status_numeric','loan_status','dti','delinq_2yrs','fico_range_low','avg_cur_bal',
+        'inq_last_6mths','open_acc','pub_rec','revol_bal','revol_util','total_acc','tot_cur_bal','total_pymnt','total_rec_int']
 
 input_file=input_file[columns]
-temp=input_file['tot_cur_bal']
+temp=input_file['loan_amnt']
 print(temp.max())
 print(temp.min())
 # print(input_file.info())

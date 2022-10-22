@@ -6,11 +6,24 @@ from random import seed
 from sklearn.model_selection import train_test_split
 
 def accuracy_metric(actual, predicted):
-	correct = 0
+	correct=0
+	tp=0
+	tn=0
+	fp=0
+	fn=0
 	for i in range(len(actual)):
+		if actual[i]==1 and predicted[i]==1:
+			tp+=1
+		if actual[i]==0 and predicted[i]==0:
+			tn+=1
+		if actual[i]==1 and predicted[i]==0:
+			fn+=1
+		if actual[i]==0 and predicted[i]==1:
+			fp+=1
 		if actual[i] == predicted[i]:
 			correct += 1
-	return correct / float(len(actual)) * 100.0
+	acc=(tn+tp)/(tn+tp+fn+fp)
+	return acc*100.0
 
 # calculate the Euclidean distance between two vectors
 def euclidean_distance(row1, row2):
@@ -54,21 +67,11 @@ def train_codebooks(train, n_codebooks, lrate, epochs):
 					bmu[i] += rate * error
 				else:
 					bmu[i] -= rate * error
-		print('>epoch=%d, lrate=%.3f, error=%.3f' % (epoch, rate, sum_error))
+		print('>epoch=%d, lrate=%.3f, error=%.3f' % (epoch, rate, error))
 	return codebooks
 
 # Test the training function
 seed(1)
-dataset = [[2.7810836,2.550537003,0],
-	[1.465489372,2.362125076,0],
-	[3.396561688,4.400293529,0],
-	[1.38807019,1.850220317,0],
-	[3.06407232,3.005305973,0],
-	[7.627531214,2.759262235,1],
-	[5.332441248,2.088626775,1],
-	[6.922596716,1.77106367,1],
-	[8.675418651,-0.242068655,1],
-	[7.673756466,3.508563011,1]]
 decimal.getcontext().prec=100
 input_file=pd.read_csv("Dataset/Dataset.csv",low_memory=False,nrows=2000)
 
@@ -105,18 +108,28 @@ input_file['term_years'] = input_file['term'].apply(lambda x : x[0:3])
 input_file['term_years'] = input_file.term_years.astype('Int64')
 input_file['term_years'] = input_file['term_years']/12
 input_file['term_years'] = input_file.term_years.astype('Int64')
-input_file['loan_amnt'] = input_file['loan_amnt']/7000
-input_file['int_rate'] = input_file['int_rate']/5
-input_file['installment'] = input_file['installment']/250
-input_file['risk_rate'] = input_file['risk_rate']/5
-input_file['annual_inc'] = input_file['annual_inc']/800000
-input_file['fico_range_low'] = input_file['fico_range_low']/150
-input_file['dti'] = input_file['dti']/27
-input_file['open_acc'] = input_file['open_acc']/13
-input_file['pub_rec'] = input_file['pub_rec']/5
-input_file['revol_bal'] = input_file['revol_bal']/200000
-input_file['total_acc'] = input_file['total_acc']/20
-input_file['tot_cur_bal'] = input_file['tot_cur_bal']/800000
+col=['loan_amnt','int_rate','installment','risk_rate','annual_inc','fico_range_low','dti','open_acc','pub_rec','revol_bal','total_acc',
+     'tot_cur_bal','total_pymnt','max_bal_bc','total_rec_int','avg_cur_bal']
+for i in col:
+        temp=input_file[i]
+        max=temp.max()
+        min=temp.min()
+        input_file[i] = (input_file[i]-min)/(max-min)
+# input_file['loan_amnt'] = input_file['loan_amnt']/7000
+# input_file['int_rate'] = input_file['int_rate']/5
+# input_file['installment'] = input_file['installment']/250
+# input_file['risk_rate'] = input_file['risk_rate']/5
+# input_file['annual_inc'] = input_file['annual_inc']/80000
+# input_file['fico_range_low'] = input_file['fico_range_low']/150
+# input_file['dti'] = input_file['dti']/27
+# input_file['open_acc'] = input_file['open_acc']/13
+# input_file['pub_rec'] = input_file['pub_rec']/5
+# input_file['revol_bal'] = input_file['revol_bal']/200000
+# input_file['total_acc'] = input_file['total_acc']/10
+# input_file['tot_cur_bal'] = input_file['tot_cur_bal']/800000
+# input_file['total_pymnt'] = input_file['total_pymnt']/50000
+# input_file['total_rec_int'] = input_file['total_rec_int']/20000
+# input_file['avg_cur_bal'] = input_file['avg_cur_bal']/200000
 # print(input_file['term'],input_file['term_years'])
 
 input_file['emp_length_numeric']=input_file['emp_length'].map({'10+ years':1,'< 1 year':0.05,'2 years':0.2,'3 years':0.3,'1 year':0.1,'5 years':0.5,'6 years':0.6,'4 years':0.4,'8 years':0.8,'9 years':0.9,'7 years':0.7})
@@ -139,7 +152,8 @@ input_file['loan_status'] = input_file['loan_status'].replace(replace_status)
 input_file = input_file[ (input_file['loan_status']== 1) | (input_file['loan_status']== 0)]
 
 columns=['loan_amnt','term_years','int_rate','installment','risk_rate','emp_length_numeric','annual_inc','dti','delinq_2yrs','fico_range_low',
-        'inq_last_6mths','open_acc','pub_rec','revol_bal','revol_util','total_acc','tot_cur_bal','home_ownership','verification_status_numeric','loan_status']
+        'inq_last_6mths','open_acc','pub_rec','revol_bal','revol_util','total_acc','tot_cur_bal','home_ownership','verification_status_numeric',
+		'total_pymnt','loan_status']
 
 # columns=['loan_amnt','term_years','int_rate','installment','risk_rate','emp_length_numeric','home_ownership','annual_inc',
 #         'verification_status_numeric','loan_status','dti','delinq_2yrs','fico_range_low',
@@ -147,9 +161,9 @@ columns=['loan_amnt','term_years','int_rate','installment','risk_rate','emp_leng
 input_file=input_file[columns]
 print(input_file.info())
 inputfile=input_file.to_numpy()
-learn_rate = 0.3
-n_epochs = 20
-n_codebooks = 20
+learn_rate = 0.2
+n_epochs = 10
+n_codebooks = 10
 train, test = train_test_split(inputfile, test_size=0.33, random_state=1)
 codebooks = train_codebooks(train, n_codebooks, learn_rate, n_epochs)
 predictions=list()
